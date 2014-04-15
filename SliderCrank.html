@@ -1,0 +1,922 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<title>Slider Crank</title>
+<meta name="description" content="" />
+<meta name="author" content="Dhruv Chand" />
+<meta name="viewport" content="width=device-width; initial-scale=1.0" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<script type="text/javascript" src="js/MatLib.js"></script>
+<script src='http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js'></script>
+		<script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.0/jquery-ui.min.js'></script>
+
+
+
+<link rel='stylesheet' href='css/Aristo/Aristo.css' />
+<!--
+<script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui/ui/jquery-ui.js"></script>
+		<link rel='stylesheet' href='http://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css' />
+				-->
+<link rel='stylesheet' href='css/styles.css' />
+</head>
+
+<body onload="init()">
+<divid="main-container">
+  <header> </header>
+ 
+  <div id="container">
+ 
+    <h1>Slider Crank Mechanism</h1>
+    <div id="canvas-container">
+      <nav> <button id="prev" onClick="prev()" style="display:none" class="removestyle"><img src="img/bluebkdulls.png" height="25" /></button>
+    <button id = "next" onClick="next()" class="removestyle"><img src="img/bluefwddulls.png"  height="25"  /></button> </nav>
+      <div id="position">
+        <h2>Position Diagram</h2>
+        <canvas id = "pos" height="300px" width="400px"></canvas>
+        <br/>
+        <span>Scale = <span id="scale-pos">1</span></span></span> </div>
+      <div id = "velocity">
+        <h2>Velocity Diagram </h2>
+        <canvas id = "vel" height="300px" width="400px"></canvas>
+        <br/>
+        <span>Scale = <span id="scale-vel">1</span></span> </div>
+      <div id = "acceleration">
+        <h2>Acceleration Diagram</h2>
+        <canvas id = "acc" height="300px" width="400px"></canvas>
+        <br/>
+        <span>Scale = <span id="scale-acc">1</span></span> </div>
+      <div id="log">
+      <div id = "acceleration-table">
+        <table >
+          <tr>
+            <td>Vector</td>
+            <td>Value (mm/s<sup>2</sup>)</td>
+          </tr>
+          <tr>
+            <td>A<sub>a</sub><sup>c</sup></td>
+            <td id="aac">Value</td>
+          </tr>
+          <tr>
+            <td>A<sub>a</sub><sup>t</sup></td>
+            <td id="aat">Value</td>
+          </tr>
+          <tr>
+            <td>A<sub>a</sub></td>
+            <td id = "aa">Value</td>
+          </tr>
+          <tr>
+            <td>A<sub>ba</sub><sup>c</sup></td>
+            <td id = "abac">Value</td>
+          </tr>
+          <tr>
+            <td>A<sub>ba</sub><sup>t</sup></td>
+            <td id = "abat">Value</td>
+          </tr>
+          <tr>
+            <td>A<sub>ba</sub></td>
+            <td id = "aba">Value</td>
+          </tr>
+          <tr>
+            <td>A<sub>b</sub></td>
+            <td id = "ab">Value</td>
+          </tr>
+          <tr>
+            <td>α<sub>l</sub></td>
+            <td id = "alphal">Value</td>
+          </tr>
+        </table>
+          <div class="legend">Legend
+          <br/>
+              <canvas id="legend" height="100px" width="100px"></canvas>
+          A<sub>ba</sub> : Acceleration of b wrt a
+          </div>
+        </div>
+        <div id = "velocity-table">
+        <table>
+          <tr>
+            <td>Vector</td>
+            <td>Value </td>
+            <td >Units</td>
+          </tr>
+          <tr>
+            <td>V<sub>ba</sub></td>
+            <td id="vba">Value</td>
+            <td >mm/s</td>
+          </tr>
+           <tr>
+            <td>V<sub>b</sub></td>
+            <td id="vb">Value</td>
+            <td >mm/s</td>
+          </tr>
+           <tr>
+            <td>V<sub>a</sub></td>
+            <td id="va">Value</td>
+            <td >mm/s</td>
+          </tr>
+          <tr>
+            <td>ω<sub>3</sub></td>
+            <td id="w3">Value</td>
+            <td >rad/s</td>
+          </tr>
+        </table><br>
+
+V<sub>ba</sub> : Velocity of b wrt a
+        </div>
+        <div id = "position-table" >
+        <table style="vertical-align:middle" >
+          <tr>
+            <td>Variable</td>
+            <td>Value (mm)</td>
+          </tr>
+          <tr>
+            <td>OB = d</td>
+            <td id="ob">Value</td>
+          </tr>
+        </table>
+        <span>
+        Limits of l for the given r is 100 mm and
+ 240 mm. &nbsp;&nbsp;&nbsp; 2.5 &le;l/r  &le;  6
+
+
+ </span>
+        </div>
+        </div>
+      </div>
+      
+    
+    <div id = "controls">
+       <div id="controls-1">
+        <h3>Variables</h3>
+        r =
+        <input type="number"  id='label-a'>
+        </input>
+        mm <br/>
+        <div class="slider" id="val-a"></div>
+        <br/>
+        <br/>
+        l =
+        <input type="number"  id='label-b'>
+        </input>
+        mm <br/>
+        <div class="slider"  id ="val-b"></div>
+        <br/>
+        <br/>
+        Offset =
+        <input type="number"  id='label-offset'>
+        </input>
+        mm <br/>
+        <div class="slider" id = "val-offset"></div>
+        <br/>
+        <br/>
+        <div id = "w2">
+        ω<sub>2</sub>=
+        <input type="number"   id='label-w2'>
+        </input>
+        rad/s<br/>
+        <div class="slider" id ="val-w2"></div>
+       
+        </div>
+        
+        <div id="theta2" style="display:none;">
+    &theta;<sub>2</sub> = 
+       <input type="number"   id='label-theta2'>
+        </input>
+        &deg; <br/>
+        <div class="slider" id ="val-theta2" ></div>
+        
+        </div>
+        <br/>
+        <br/>
+      </div>
+      <div id="controls-2">
+        <h3>Controls</h3><br/>
+<br/>
+
+        <button onclick="pause()" id="pause" class="removestyle"> <img src="img/pausebluedulls.png" /> </button>
+        <button onclick="reverse()" id="pause" class="removestyle"> <img src="img/reverse.png" /> </button>
+      </div>
+    </div>
+    <div id="copyright" >&copy; Solve @ NITK Surathkal</div>
+  </div>
+  <footer>
+   
+  </footer>
+</div>
+</body>
+<script type="text/javascript">
+		///init sliders
+
+		/*$('#label-a').focusout(function()
+		{
+		
+				$('#val-a').slider("value",$('#label-a').val());
+			    refresh();
+		});
+		*/
+		
+		function initControls(){
+			
+	
+			$('#val-a').slider({
+			max : 60,
+			min : 20,
+			value : 20,
+			step : 2,
+			slide : function(e, ui) {
+				$('#label-a').val(ui.value);
+				refresh();
+				$('#val-b').slider({
+					max : ui.value * 6,
+					min : ui.value * 2.5,
+					//value : ui.value * 4.5,
+					step : 2,
+					slide : function(e, ui) {
+						$('#label-b').val(ui.value);
+						refresh();
+					}
+				});
+				$('#label-b').spinner({
+					max : ui.value * 6,
+					min : ui.value * 2.5,
+					//value : ui.value * 4.5,
+					step : 2,
+					spin : function(e, ui) {
+							$('#val-b').slider("value",ui.value);
+						refresh();
+					}
+				});
+				refresh();
+			}
+		});
+		$('#val-b').slider({
+			max : 100,
+			min : 50,
+			value : 50,
+			step : 1,
+			slide : function(e, ui) {
+				$('#label-b').val(ui.value);
+				refresh();
+			}
+		});
+		$('#val-offset').slider({
+			max : 25,
+			min : 0,
+			value : 0,
+			step : 1,
+			slide : function(e, ui) {
+				$('#label-offset').val(ui.value);
+				refresh();
+			}
+		});
+		$('#val-w2').slider({
+			max : 10,
+			min : 1,
+			value : 1,
+			step : 1,
+			slide : function(e, ui) {
+				$('#label-w2').val(ui.value);
+				refresh();
+			}
+		});
+		$('#val-a2').slider({
+			max : 10,
+			min : 0,
+			value : 1,
+			step : 1,
+			slide : function(e, ui) {
+				$('#label-a2').val(ui.value);
+				refresh();
+			}
+		});
+            
+         $('#val-theta2').slider({
+			max : 360,
+			min : 0,
+			value : 0,
+			step : 1,
+			slide : function(ev, ui) {
+				$('#label-theta2').val(ui.value);
+			theta2 = deg2rad(ui.value);
+			compute(a, b, e, w2, alpha2, theta2);
+				plot();
+				log();
+			}
+		});
+		
+		$('#label-a').spinner({
+			max : 60,
+			min : 20,
+			value : 20,
+			step : 2,
+			spin:function(e,ui){
+				$('#val-a').slider("value",ui.value);
+				refresh();
+				$('#val-b').slider({
+					max : ui.value * 6,
+					min : ui.value * 2.5,
+					//value : ui.value * 4.5,
+					step : 2,
+					slide : function(e, ui) {
+						$('#label-b').val(ui.value);
+						refresh();
+					}
+				});
+			
+			$('#label-b').spinner({
+					max : ui.value * 6,
+					min : ui.value * 2.5,
+					//value : ui.value * 4.5,
+					step : 2,
+					spin : function(e, ui) {
+							$('#val-b').slider("value",ui.value);
+						refresh();
+					}
+				});
+				
+				refresh();
+			}
+		});
+		
+			$('#label-b').spinner({
+			max : 100,
+			min : 50,
+			value : 50,
+			step : 1,
+			spin : function(e, ui) {
+				$('#val-b').slider("value",ui.value);
+				refresh();
+			}
+		});
+		$('#label-offset').spinner({
+			max : 25,
+			min : 0,
+			value : 0,
+			step : 1,
+			spin : function(e, ui) {
+				$('#val-offset').slider("value",ui.value);
+				refresh();
+			}
+		});
+		$('#label-w2').spinner({
+			max : 10,
+			min : 1,
+			value : 1,
+			step : 1,
+			spin : function(e, ui) {
+				$('#val-w2').slider("value",ui.value);
+				refresh();
+			}
+		});
+		
+            $('#label-theta2').spinner({
+			max : 360,
+			min : 0,
+			value : 0,
+			step : 1,
+			spin : function(ev, ui) {
+				$('#val-theta2').slider("value",ui.value);
+				theta2 = deg2rad(ui.value);
+				compute(a, b, e, w2, alpha2, theta2);
+				plot();
+				log();
+			}
+		});
+		
+			
+
+		$('#label-a').val($('#val-a').slider("value"));
+		$('#label-b').val($('#val-b').slider("value"));
+		$('#label-offset').val($('#val-offset').slider("value"));
+		$('#label-w2').val($('#val-w2').slider("value"));
+		$('#label-a2').val($('#val-a2').slider("value"));
+		}
+		
+		///Init canvas elements
+		/*
+		resize(document.getElementById("pos"), 300, 100);
+		resize(document.getElementById("vel"), 250, 100);
+		resize(document.getElementById("acc"), 300, 250);
+		*/
+		
+		
+		var pauseFlag = 1;
+		var t = 50;
+		var pos ;
+		var vel ;
+		var acc;
+		
+        
+        var isReverse = 0;
+
+		
+
+		///////////INITIAL CONDITIONS
+		var theta2 = 0;
+		var a = 20, b = 50, e = 0, w2 = 1, alpha2 = 1; //Inputable params
+
+		//Positions
+		var C2
+		var theta3
+		var C1
+		var d
+		var dmax = 0;
+		//Velocities
+		var vba
+		var vcb
+		var w3;
+		//Accelerations
+		var at2
+		var ar2
+		var alpha3
+		var at3
+		var ar3
+		var a4
+		
+
+		//Object array and storage variables for plotting
+		var data = new Array();
+		var ax,ay,bx,by;
+		var vbax,vbay,vcbx,vcby,vcx,vcy;
+		var at2x,at2y,ar2x,ar2y, at3x, at3y, ar3x,ar3y, a2x,a2y,a3x,a3y,a4;
+		
+		
+		var interval;
+		
+		var functions = [position,velocity,acceleration];
+		var currentFunction = 0;
+		
+		var max1=[0,0],max2=[0,0],max3=[0,0];
+
+		function precompute() {
+			var i = 0;
+		
+		max1 = [0, 0], max2 = [0, 0], max3 = [0, 0];
+		
+			for ( theta2 = 0; theta2 < 3.1415 * 2; theta2 += 0.05) {
+				compute(a, b, e, w2, alpha2, theta2);
+				//Store Data
+				data[i] = new Object();
+				data[i]["theta2"] = theta2;
+				
+				data[i]["ax"] = ax;
+				data[i]["ay"] = ay;
+				data[i]["bx"] = bx;
+				data[i]["by"] = by;
+				data[i]["e"] = e;
+				data[i]["d"] = d;
+				
+				
+				data[i]["vbax"] = vbax;
+				data[i]["vbay"] = vbay;
+				data[i]["vcbx"] = vcbx;
+				data[i]["vcby"] = vcby;
+				data[i]["vcx"] = vcx;
+				data[i]["vcy"] = vcy;
+				data[i]["w3"] = w3;
+
+
+				
+				data[i]["at2x"] = at2x;
+				data[i]["at2y"] = at2y;
+				data[i]["ar2y"] = ar2x;
+				data[i]["ar2x"] = ar2y;
+				data[i]["a2x"] = a2x;
+				data[i]["a2y"] = a2y;
+				data[i]["at3x"] = at3x;
+				data[i]["at3y"] = at3y;
+				data[i]["ar3x"] = ar3x;
+				data[i]["ar3y"] = ar3y;
+				data[i]["a3x"] = a3x;
+				data[i]["a3y"] = a3y;				
+				data[i]["a4"] = a4;
+				dmax = dmax<d?d:dmax;
+				//compute max value for scaling
+				
+				
+				 max1[0] = max1[0]< getMax([ax,bx,d])?getMax([ax,bx,d]):max1[0];
+				 max1[1] = max1[1]< getMax([ay,by])?getMax([ay,by]):max1[1];
+				
+				 
+				 max2[0] = max2[0]< getMax([vbax,vcbx,vcx])?getMax([vbax,vcbx,vcx]):max2[0];
+				  max2[1] = max2[1]< getMax([vbay,vcby,vcy])?getMax([vbay,vcby,vcy]):max2[1];
+				 
+				 max3[0] = max3[0] < getMax([a3x,a4,a2x])?getMax([a3x,a4,a2x]):max3[0];
+				  max3[1] = max3[1] < getMax([a3x,a4,a2x])?getMax([a3x,a4,a2x]):max3[1];
+				i++;
+			}
+
+			//Set scaling
+		scale(document.getElementById("pos"),max1,0);
+		scale(document.getElementById("vel"),max2,0);
+		scale(document.getElementById("acc"),max3,0);
+			
+			$('#scale-pos').html(pos.sc)
+			$('#scale-vel').html(vel.sc)			
+			$('#scale-acc').html(acc.sc)
+			
+			 max1=[0,0],max2=[0,0],max3=[0,0];
+		}
+		
+		function scale(cnv,m,redo)
+		{
+			var fos = 0.9;
+			var c = cnv.getContext("2d")
+			
+			c.scale( 1/c.sc, 1/c.sc);
+			c.sc = 1;
+			//calculate actual pixel size:
+			sf1 = ((cnv.height-20)*fos/2)/(m[1]);
+			sf2 = ((cnv.width-20)*fos/2)/(m[0]);
+			
+			sf = sf1>sf2?sf2:sf1;			
+			sf = Math.pow(2,Math.floor(Math.log(sf)/0.693)).toFixed(2);			
+			c.scale(sf,sf)
+			c.sc =sf;		
+			
+		}
+		
+		
+		function compute(a, b, e, w2, alpha2, theta2) {
+		//	console.log(a,b,e,w2,alpha2,theta2);
+			//Position analysis
+			C2 = a * a - b * b + e * e - 2 * e * a * Math.sin(theta2);
+			theta3 = Math.asin((e - a * Math.sin(theta2)) / b);
+			C1 = -2 * a * Math.cos(theta2);
+			d = (-C1 + Math.sqrt(C1 * C1 - 4 * C2)) / 2;
+			//storage vars
+			ax = Math.cos(theta2)*a;
+			ay = Math.sin(theta2)*a;
+			bx = Math.cos(theta3)*b;
+			by = Math.sin(theta3)*b;
+			
+			
+			
+			//Velocity Analysis
+			vba = a * w2;
+			w3 = (a * w2 * Math.cos(theta2)) / (b * Math.cos(theta3));
+			vcb = b * (a * w2 * Math.cos(theta2)) / (b * Math.cos(theta3));
+			//Store
+			vbax =  vba * Math.cos(theta2 + 1.571);
+			vbay =  vba * Math.sin(theta2 + 1.571);
+			vcbx =  vcb* Math.cos(4.716 + theta3);
+			vcby =  vcb* Math.sin(4.716 + theta3)
+			vcx =  vbax + vcbx;
+			vcy = vbay + vcby;
+			//Acceleration Analysis
+			at2 = a * alpha2;
+			ar2 = a * w2 * w2;
+			a2x = at2 * Math.cos(theta2 + 1.571) + ar2 * Math.cos(theta2 + 3.1415);
+			a2y = at2 * Math.sin(theta2 + 1.571) + ar2 * Math.sin(theta2 + 3.1415);
+			a2 = Math.sqrt(a2x * a2x + a2y * a2y);
+			alpha3 = (a * alpha2 * Math.cos(theta2) - a * w2 * w2 * Math.sin(theta2) - b * w3 * w3 * Math.sin(theta3)) / (b * Math.cos(theta3));
+			at3 = -1 * b * alpha3;
+			ar3 = b * w3 * w3;
+			a3x = at3 * Math.cos(theta3 + 1.571) + ar3 * Math.cos(theta3 + 3.1415);
+			a3y = at3 * Math.sin(theta3 + 1.571) + ar3 * Math.sin(theta3 + 3.1415);		
+			a3 = Math.sqrt(a3x * a3x + a3y * a3y);
+			a4 = (a * alpha2 * Math.sin(theta3 - theta2) - a * w2 * w2 * Math.cos(theta3 - theta2) - b * w3 * w3) / Math.cos(theta3);
+			//store
+			at2x =  at2 * Math.cos(theta2 + 1.571);
+			at2y =  at2 * Math.sin(theta2 + 1.571);
+			ar2x = ar2 * Math.cos(theta2 + 3.1415);
+			ar2y = ar2 * Math.sin(theta2 + 3.1415);
+			a2x = at2x + ar2x;
+			a2y = at2y + ar2y;
+			
+			at3x =  at3 * Math.cos(theta3 + 1.571);
+			at3y =  at3 * Math.sin(theta3 + 1.571);
+			ar3x = ar3 * Math.cos(theta3 + 3.1415);
+			ar3y = ar3 * Math.sin(theta3 + 3.1415);
+			a3x = at3x + ar3x;
+			a3y = at3y + ar3y;
+		}
+
+		//////////DRAW FUNCTION
+		var j = 0;
+		var p = function draw(stay,t2) {
+			
+			
+			theta2 = data[j]["theta2"];			
+			ax = data[j]["ax"];
+			ay = data[j]["ay"];
+			bx = data[j]["bx"];
+			by = data[j]["by"];			
+			e = data[j]["e"];
+			d = data[j]["d"];
+			
+			
+			vbax = data[j]["vbax"];
+			vbay = data[j]["vbay"];
+			vcbx = data[j]["vcbx"];
+			vcby = data[j]["vcby"];
+			vcx = data[j]["vcx"];
+			vcy = data[j]["vcy"];
+			
+			
+			
+				at2x= data[j]["at2x"]  ;
+				at2y = data[j]["at2y"] ;
+				ar2x= data[j]["ar2y"]  ;
+				ar2y =data[j]["ar2x"]  ;
+				a2x= data[j]["a2x"] ;
+				a2y= data[j]["a2y"]  ;
+				at3x =data[j]["at3x"]  ;
+				at3y= data[j]["at3y"]  ;
+				ar3x =data[j]["ar3x"]  ;
+				ar3y= data[j]["ar3y"]  ;
+				a3x =data[j]["a3x"]  ;
+				a3y= data[j]["a3y"]  ;
+				a4 = data[j]["a4"];
+				w3 = data[j]["w3"];
+				
+			if (!stay){
+                if(isReverse==0)
+				j = data[j + 1] != undefined ? j + 1 : 0;
+                else
+                j = j!=0 ? j - 1 : Number(data.length-1);
+            }
+			
+            plot();
+			log();
+		}
+		
+        function plot(){
+            //Plotting Code
+			//Position simulation
+			pos.clear();
+			vel.clear();
+			acc.clear();
+
+			pos.lineWidth = 2/pos.sc;
+			vel.lineWidth = 2/vel.sc;
+			acc.lineWidth = 2/acc.sc;
+			
+           
+            
+				pos.color("green");
+			pos.line(-10/pos.sc,-7/pos.sc +e	, dmax+20/pos.sc,-7/pos.sc +e);
+			pos.lineWidth = 10/pos.sc;			  
+			pos.color("blue");
+			pos.putText("O",-10,-20);
+			pos.line(0, 0, ax, ay, "A");
+            
+			pos.lineWidth = 15/pos.sc;
+			pos.color("green");
+			pos.line(d - 10/pos.sc, e, d + 10/pos.sc, e);
+			pos.lineWidth = 10/pos.sc;
+			pos.color("red");
+			pos.line2(ax, ay, bx, by, "B");
+			
+             pos.circle(0,0,2,"gray");
+		   pos.circle(ax,ay,2,"gray");
+//            / pos.circle(ax+bx,ay+by,0.5,"gray");
+
+			//Velocity Vects
+			vel.color("blue");
+			vel.putText("O",-10,-10);
+			vel.quiver(0, 0, vbax, vbay, "Va");
+			vel.color("red");
+			vel.quiver3(vcbx, vcby, "Vba");
+			vel.color("gray");
+			vel.quiver2(0, 0, vcx, vcy);
+			vel.putTextS("Vb",vcx/2,vcy/2);
+
+			//Acceleration Vectors
+
+			acc.color("blue");
+			acc.setDash(3);
+			acc.putText("O",-10,-10);
+			acc.quiver(0, 0,at2x, at2y);
+            acc.setDash(1);
+			acc.quiver3(ar2x, ar2y);
+			acc.setDash();
+			acc.quiver2(0, 0, a2x, a2y,"Aa");
+
+			acc.color("red");
+			acc.setDash();
+			acc.setDash(3);
+			acc.quiver(a2x, a2y,at3x, at3y);
+            acc.setDash(1);
+			acc.quiver3(ar3x, ar3y);
+			acc.setDash();
+			acc.quiver(a2x, a2y, a3x, a3y);
+			acc.color("gray");
+			acc.quiver(0, 0, a4, 0,"Ab");
+        }
+		
+		function log() {
+			
+			document.getElementById('aac').innerHTML = magn(ar2x,ar2y).toFixed(2);
+			document.getElementById('aat').innerHTML = magn(at2x,at2y).toFixed(2);
+			document.getElementById('aa').innerHTML =magn(a2x,a2y).toFixed(2);
+			document.getElementById('abac').innerHTML = magn(at3x,at3y).toFixed(2);
+			document.getElementById('abat').innerHTML = magn(ar3x,ar3y).toFixed(2);
+			document.getElementById('aba').innerHTML = magn(a3x,a3y).toFixed(2);
+			document.getElementById('ab').innerHTML = a4.toFixed(2);
+			document.getElementById('alphal').innerHTML = alpha3.toFixed(2);
+			
+			document.getElementById('vba').innerHTML = magn(vcbx,vcby).toFixed(2);
+			document.getElementById('vb').innerHTML =vcx.toFixed(2);
+			document.getElementById('w3').innerHTML =w3.toFixed(2);
+			document.getElementById('va').innerHTML =magn(vbax,vbay).toFixed(2);
+			document.getElementById('ob').innerHTML =d.toFixed(2);
+		}
+
+		function refresh() {
+			//theta2 = 0;
+			a = Number($("#label-a").val());
+			b = Number($("#label-b").val());
+			e = Number($("#label-offset").val());
+			w2 = Number($("#label-w2").val());
+            alpha2 = w2;
+	
+			// j=0;
+			clearInterval(interval);
+			precompute();
+			if (pauseFlag != 1) {
+				p(true);
+			} else {
+				interval = setInterval(p, t);
+			}
+		}
+
+    
+		function pause() {
+			if (pauseFlag == 1) {
+				clearInterval(interval);
+				document.getElementById('pause').innerHTML = '<img src="img/playbluedulls.png" />';
+				
+				 $('#theta2').show();
+                $('#val-theta2').slider("value",rad2deg(theta2).toFixed(0));
+				$('#label-theta2').val(rad2deg(theta2).toFixed(0));
+				$('#w2').hide();
+				
+				pauseFlag = 0;
+			} else {
+				interval = setInterval(p, t);
+				document.getElementById('pause').innerHTML = '<img src="img/pausebluedulls.png" />';
+				pauseFlag = 1;
+				
+				 $('#theta2').hide();
+				 $('#w2').show();
+				 
+			}
+		}
+
+		function init() {
+			
+			initControls();
+			hideall();
+            legend();
+			 pos = addFunctions(document.getElementById("pos").getContext("2d"), document.getElementById("pos").width, document.getElementById("pos").height);
+		 vel = addFunctions(document.getElementById("vel").getContext("2d"), document.getElementById("vel").width, document.getElementById("vel").height);
+		 acc = addFunctions(document.getElementById("acc").getContext("2d"), document.getElementById("acc").width, document.getElementById("acc").height);
+			initsize();
+			
+		position(1);
+		
+		
+		precompute();
+			interval = setInterval(p, t);
+			
+		}
+		
+        function reverse()
+        {
+            isReverse= isReverse==0?1:0;
+            w2 = -1*w2;
+            alpha2 = -1*alpha2;
+            precompute();
+        }
+		
+
+function hideall()
+{
+	$('#position').hide();
+			$('#velocity').hide();
+		$('#acceleration').hide();	
+			$('#velocity-table').hide();
+		$('#position-table').hide();	
+			$('#acceleration-table').hide();
+}
+
+
+
+		function initsize()
+		{
+				resize(document.getElementById("pos"), 300, 100);
+		resize(document.getElementById("vel"), 250, 100);
+		resize(document.getElementById("acc"), 300, 250);
+		pos.scale(1, -1);
+		pos.translate(-100, 0);
+		
+		vel.scale(1, -1);
+		vel.lineWidth = 1.5;
+		acc.scale(1, -1);
+		acc.lineWidth = 1.5;
+		pos.sc=1;
+		vel.sc=1;
+		acc.sc=1;
+		
+		}
+
+
+	function position(f)
+	{	
+		
+		hideall();
+		initsize();
+		$('#position').show();
+		$('#position-table').show();
+		resize(document.getElementById("pos"), 500, 325);
+		//pos.translate(200,150);
+		pos.scale(1,-1);
+		pos.sc=1;
+		precompute();	
+	//	refresh();	
+		 
+	}
+	
+	function velocity(f)
+	{
+		
+		hideall();
+		initsize();
+		$('#velocity').show();
+		$('#position').show();
+		$('#velocity-table').show();
+		resize(document.getElementById("vel"), 350, 250);
+		vel.scale(1,-1);
+		vel.sc=1;
+		precompute();	
+		//refresh();	
+	}
+	
+	function acceleration(f)
+	{
+		 
+		hideall();
+		initsize();
+		$('#position').show();
+		$('#velocity').show();
+		$('#acceleration').show();
+		$('#acceleration-table').show();
+		initsize();
+		precompute();	
+	//	refresh();	
+        
+	}
+	
+	function next()
+	{
+		currentFunction = currentFunction+1 == functions.length?0:currentFunction+1;
+		functions[currentFunction]();	
+		if(currentFunction == functions.length-1)
+		{
+			$('#next').hide();
+		}
+		else
+		{
+			$('#prev').show();
+		}
+		p();
+	}
+	
+	function prev()
+	{
+		currentFunction = currentFunction ==0 ? functions.length-1:currentFunction-1;
+		functions[currentFunction]();
+			if(currentFunction == 0)
+		{
+			$('#prev').hide();
+		}
+		else
+		{
+			$('#next').show();
+		}
+		p();
+	}
+    
+    function legend()
+    {
+        
+         l = addFunctions(document.getElementById("legend").getContext("2d"), document.getElementById("legend").width, document.getElementById("legend").height);
+      resize(document.getElementById("legend"), 100, 100);
+        l.translate(-60,50);
+        l.scale(1,-1);
+        l.lineWidth=3;
+        l.color("blue");
+         l.setDash(1);
+         l.line(0,20,30,20);
+        l.putText("Radial Acc.",35,20);
+        l.setDash(3);
+         l.line(0,40,30,40);
+          l.putText("Tangential Acc.",35,40);
+    }
+	</script>
+<style type="text/css"></style>
+</html>
